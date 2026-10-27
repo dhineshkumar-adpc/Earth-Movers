@@ -13,8 +13,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Check required files are in the repo
+        shell: pwsh
+        run: |
+          Get-ChildItem
+          $missing = @()
+          foreach ($f in "main.py","index.html","logo.png","requirements.txt") {
+            if (-not (Test-Path $f)) { $missing += $f }
+          }
+          if ($missing.Count -gt 0) {
+            Write-Error "Missing in repo root: $($missing -join ', ')"
+            exit 1
+          }
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.8' # Windows 7 compatible version
 
@@ -25,7 +38,7 @@ jobs:
 
       - name: Build EXE with PyInstaller
         run: |
-          pyinstaller --noconsole --onefile --add-data "index.html;." --add-data "logo.png;." main.py
+          python -m PyInstaller --noconsole --onefile --name main --add-data "index.html;." --add-data "logo.png;." main.py
 
       - name: Upload EXE Artifact
         uses: actions/upload-artifact@v4
