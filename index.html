@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Earth Movers — Fleet Management (DEMO with sample data)</title>
+<title>Earth Movers — Fleet Management</title>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ===================== Earth Movers Fleet Management ===================== */
@@ -2458,171 +2458,9 @@ function bootApp(){
 
 </script>
 <script>
-/* =========================================================================
-   DEMO SEED DATA — Earth Movers
-   Only runs once, the very first time the app opens with no saved data,
-   so every screen and every feature has real sample records to show.
-   Delete this file (or don't include it) for a clean/blank installation.
-   ========================================================================= */
-function seedDemoData(){
-  if(DB.vehicles.length || DB.drivers.length || DB.customers.length) return; // already has data, don't touch
-
-  const T = todayISO();
-  const dOff = (n)=>{ const d=new Date(); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); };
-
-  // ---------- Vehicles ----------
-  const vehicles = [
-    {id:'veh1', regNumber:'TN-51-AB-1234', name:'JCB 3DX Backhoe Loader', type:'Backhoe Loader', manufacturer:'JCB', modelYear:2021, engineNumber:'ENG-88213', chassisNumber:'CHS-51029', purchaseDate:'2021-03-14', purchasePrice:2450000, status:'Working', lastServiceDate:dOff(-40), lastServiceCost:8500, lastServiceDetails:'Engine oil, hydraulic filter change', nextServiceDate:dOff(20), serviceIntervalDays:90, notes:'Primary excavation unit.'},
-    {id:'veh2', regNumber:'TN-51-AC-5678', name:'Tata Hitachi EX 210 Excavator', type:'Excavator', manufacturer:'Tata Hitachi', modelYear:2020, engineNumber:'ENG-77102', chassisNumber:'CHS-49811', purchaseDate:'2020-06-02', purchasePrice:3850000, status:'Working', lastServiceDate:dOff(-15), lastServiceCost:12000, lastServiceDetails:'Track tension, undercarriage check', nextServiceDate:dOff(75), serviceIntervalDays:90, notes:''},
-    {id:'veh3', regNumber:'TN-51-AD-9012', name:'Ashok Leyland 2518 Tipper', type:'Tipper Truck', manufacturer:'Ashok Leyland', modelYear:2019, engineNumber:'ENG-65310', chassisNumber:'CHS-38820', purchaseDate:'2019-11-20', purchasePrice:2150000, status:'Available', lastServiceDate:dOff(-60), lastServiceCost:6200, nextServiceDate:dOff(-5), serviceIntervalDays:60, notes:'Used for material transport.'},
-    {id:'veh4', regNumber:'TN-51-AE-3456', name:'L&T Komatsu PC71 Mini Excavator', type:'Mini Excavator', manufacturer:'L&T Komatsu', modelYear:2022, engineNumber:'ENG-91442', chassisNumber:'CHS-60213', purchaseDate:'2022-01-10', purchasePrice:1950000, status:'Maintenance', lastServiceDate:dOff(-2), lastServiceCost:15500, lastServiceDetails:'Hydraulic pump repair', nextServiceDate:dOff(88), serviceIntervalDays:90, notes:'Currently in workshop for hydraulic pump repair.'},
-    {id:'veh5', regNumber:'TN-51-AF-7890', name:'Bharat Benz 2823 Tipper', type:'Tipper Truck', manufacturer:'Bharat Benz', modelYear:2018, engineNumber:'ENG-55009', chassisNumber:'CHS-29981', purchaseDate:'2018-08-05', purchasePrice:2350000, status:'Breakdown', lastServiceDate:dOff(-90), nextServiceDate:dOff(-30), serviceIntervalDays:60, notes:'Gearbox issue reported, awaiting parts.'},
-  ];
-  vehicles.forEach(v=>{ v.createdAt=nowStamp(); v.updatedAt=nowStamp(); DB.vehicles.push(v); });
-
-  // ---------- Drivers ----------
-  const drivers = [
-    {id:'drv1', name:'Kumar Selvam', phone:'9840012345', altPhone:'9840099999', address:'Vanduvancheri, Nagapattinam', emergencyContact:'Selvi (wife)', emergencyPhone:'9840055555', joiningDate:'2019-05-01', status:'Active', idProofType:'Aadhaar', idProofNumber:'XXXX-XXXX-4521', licenceNumber:'TN51 20180012345', licenceExpiry:dOff(200), salaryType:'Monthly', salaryAmount:22000, notes:'Senior operator, handles excavators.'},
-    {id:'drv2', name:'Raja Mohan', phone:'9942211678', address:'Nagapattinam Town', joiningDate:'2020-08-15', status:'Active', idProofType:'Voter ID', idProofNumber:'ABC1234567', licenceNumber:'TN51 20190098765', licenceExpiry:dOff(15), salaryType:'Daily Wage', salaryAmount:750, notes:''},
-    {id:'drv3', name:'Vetri Vel', phone:'9976543210', joiningDate:'2022-02-10', status:'Active', licenceNumber:'TN51 20220056781', licenceExpiry:dOff(400), salaryType:'Monthly', salaryAmount:18000, notes:'Tipper driver.'},
-    {id:'drv4', name:'Anbu Selvan', phone:'9865432109', joiningDate:'2023-06-01', status:'On Leave', licenceNumber:'TN51 20230011122', licenceExpiry:dOff(-10), salaryType:'Daily Wage', salaryAmount:700, notes:'On leave for family function.'},
-  ];
-  drivers.forEach(d=>{ d.createdAt=nowStamp(); d.updatedAt=nowStamp(); DB.drivers.push(d); });
-
-  // ---------- Customers ----------
-  const customers = [
-    {id:'cus1', name:'Muthu Krishnan', businessName:'MK Constructions', phone:'9843211111', address:'Mayiladuthurai', billingAddress:'MK Constructions, Mayiladuthurai - 609001', gstNumber:'33ABCDE1234F1Z5', notes:'Regular customer, monthly billing.'},
-    {id:'cus2', name:'Elumalai R', businessName:'Elumalai Real Estate', phone:'9843222222', address:'Nagapattinam', gstNumber:'33XYZAB5678G1Z2', notes:''},
-    {id:'cus3', name:'Saravanan P', businessName:'', phone:'9843233333', address:'Vanduvancheri', notes:'Individual land owner, pays cash.'},
-  ];
-  customers.forEach(c=>{ c.createdAt=nowStamp(); c.updatedAt=nowStamp(); DB.customers.push(c); });
-
-  // ---------- Sites ----------
-  const sites = [
-    {id:'site1', name:'Mayiladuthurai Highway Widening', customerId:'cus1', address:'NH-32, Mayiladuthurai', location:'Mayiladuthurai', customerContact:'9843211111', startDate:dOff(-45), status:'Active', workDescription:'Road widening and earth leveling work.', notes:''},
-    {id:'site2', name:'Elumalai Layout Development', customerId:'cus2', address:'Nagapattinam Bypass Road', location:'Nagapattinam', customerContact:'9843222222', startDate:dOff(-20), status:'Active', workDescription:'Plot leveling for residential layout.', notes:''},
-    {id:'site3', name:'Saravanan Pond Excavation', customerId:'cus3', address:'Vanduvancheri Village', location:'Vanduvancheri', customerContact:'9843233333', startDate:dOff(-90), endDate:dOff(-70), status:'Completed', workDescription:'Farm pond digging.', notes:'Completed on time.'},
-  ];
-  sites.forEach(s=>{ s.createdAt=nowStamp(); s.updatedAt=nowStamp(); DB.sites.push(s); });
-
-  // link current site/driver on vehicles
-  DB.vehicles.find(v=>v.id==='veh1').currentSiteId='site1'; DB.vehicles.find(v=>v.id==='veh1').currentDriverId='drv1';
-  DB.vehicles.find(v=>v.id==='veh2').currentSiteId='site2'; DB.vehicles.find(v=>v.id==='veh2').currentDriverId='drv3';
-
-  // ---------- Jobs (rentals) ----------
-  const jobs = [
-    {id:'job1', vehicleId:'veh1', customerId:'cus1', siteId:'site1', driverId:'drv1', startDate:dOff(-45), rateType:'Daily', rate:6000, quantity:30, advanceReceived:100000, status:'Ongoing', notes:'Monthly billing cycle.'},
-    {id:'job2', vehicleId:'veh2', customerId:'cus2', siteId:'site2', driverId:'drv3', startDate:dOff(-20), rateType:'Hourly', rate:900, quantity:120, advanceReceived:60000, status:'Ongoing', notes:''},
-    {id:'job3', vehicleId:'veh3', customerId:'cus3', siteId:'site3', driverId:'drv2', startDate:dOff(-90), endDate:dOff(-70), rateType:'Daily', rate:4500, quantity:18, advanceReceived:81000, status:'Completed', notes:'Fully paid.'},
-    {id:'job4', vehicleId:'veh5', customerId:'cus1', siteId:'site1', driverId:'drv4', startDate:dOff(-60), endDate:dOff(-46), rateType:'Daily', rate:5000, quantity:14, advanceReceived:40000, status:'Completed', notes:'Balance pending from customer.'},
-    {id:'job5', vehicleId:'veh1', customerId:'cus2', siteId:'site2', driverId:'drv1', startDate:dOff(-10), endDate:dOff(-3), rateType:'Daily', rate:6000, quantity:7, advanceReceived:42000, status:'Completed', notes:''},
-  ];
-  jobs.forEach(j=>{ j.createdAt=nowStamp(); j.updatedAt=nowStamp(); DB.jobs.push(j); });
-
-  // ---------- Expenses ----------
-  const expenses = [
-    {id:'exp1', date:dOff(-2), vehicleId:'veh1', category:'Fuel/Diesel', amount:8500, vendor:'Indian Oil Bunk', paymentMethod:'Cash', siteId:'site1', driverId:'drv1', description:'Weekly diesel refill'},
-    {id:'exp2', date:dOff(-5), vehicleId:'veh2', category:'Fuel/Diesel', amount:9200, vendor:'HP Petrol Bunk', paymentMethod:'UPI', siteId:'site2', driverId:'drv3', description:''},
-    {id:'exp3', date:dOff(-15), vehicleId:'veh4', category:'Repairs', amount:15500, vendor:'Balaji Hydraulics', paymentMethod:'Bank Transfer', description:'Hydraulic pump repair'},
-    {id:'exp4', date:dOff(-8), vehicleId:'veh3', category:'Tyres', amount:22000, vendor:'MRF Tyre Shop', paymentMethod:'Cash', description:'2 new rear tyres'},
-    {id:'exp5', date:dOff(-30), vehicleId:'veh1', category:'Insurance', amount:28000, vendor:'United India Insurance', paymentMethod:'Bank Transfer', description:'Annual premium renewal'},
-    {id:'exp6', date:dOff(-1), vehicleId:'veh5', category:'Breakdown', amount:6000, vendor:'Local Mechanic', paymentMethod:'Cash', description:'Gearbox diagnosis charges'},
-    {id:'exp7', date:dOff(-25), vehicleId:'veh2', category:'Service', amount:12000, vendor:'Tata Hitachi Service Center', paymentMethod:'Cheque', description:'Scheduled service'},
-    {id:'exp8', date:dOff(-4), category:'Driver-related', amount:3000, vendor:'', paymentMethod:'Cash', driverId:'drv2', description:'Food & travel allowance'},
-  ];
-  expenses.forEach(e=>{ e.createdAt=nowStamp(); e.updatedAt=nowStamp(); DB.expenses.push(e); });
-
-  // ---------- Income (misc, outside jobs) ----------
-  const incomes = [
-    {id:'inc1', date:dOff(-12), vehicleId:'veh3', siteId:'site1', customerId:'cus1', hours:'2 days', rate:4000, grossAmount:8000, receivedAmount:8000, paymentDate:dOff(-12), notes:'Extra material transport, one-off.'},
-    {id:'inc2', date:dOff(-3), vehicleId:'veh1', siteId:'site1', customerId:'cus1', hours:'1 day', rate:6000, grossAmount:6000, receivedAmount:0, notes:'Awaiting payment.'},
-  ];
-  incomes.forEach(i=>{ i.createdAt=nowStamp(); i.updatedAt=nowStamp(); DB.income.push(i); });
-
-  // ---------- Maintenance ----------
-  const maints = [
-    {id:'mnt1', vehicleId:'veh4', date:dOff(-15), type:'Repair', problem:'Hydraulic pump leaking oil', workPerformed:'Replaced hydraulic pump seals', partsCost:9500, labourCost:6000, vendor:'Balaji Hydraulics', downtimeDays:4, notes:''},
-    {id:'mnt2', vehicleId:'veh5', date:dOff(-1), type:'Breakdown', problem:'Gearbox making grinding noise', workPerformed:'Diagnosis in progress', partsCost:0, labourCost:6000, vendor:'Local Mechanic', downtimeDays:3, notes:'Awaiting spare parts from Chennai.'},
-    {id:'mnt3', vehicleId:'veh2', date:dOff(-25), type:'Service', problem:'Scheduled 500-hour service', workPerformed:'Oil change, filter replacement, track adjustment', partsCost:7000, labourCost:5000, vendor:'Tata Hitachi Service Center', downtimeDays:1, notes:''},
-    {id:'mnt4', vehicleId:'veh3', date:dOff(-8), type:'Repair', problem:'Rear tyres worn out', workPerformed:'Replaced both rear tyres', partsCost:20000, labourCost:2000, vendor:'MRF Tyre Shop', downtimeDays:0, notes:''},
-    {id:'mnt5', vehicleId:'veh1', date:dOff(-40), type:'Service', problem:'Routine 90-day service', workPerformed:'Engine oil, hydraulic filter change', partsCost:5500, labourCost:3000, vendor:'JCB Authorized Service', downtimeDays:1, notes:''},
-  ];
-  maints.forEach(m=>{ m.createdAt=nowStamp(); m.updatedAt=nowStamp(); DB.maintenance.push(m); });
-
-  // ---------- Documents ----------
-  const docs = [
-    {id:'doc1', refType:'vehicle', refId:'veh1', docType:'Insurance', docNumber:'INS-2025-88213', issueDate:'2025-03-01', expiryDate:dOff(12), notes:''},
-    {id:'doc2', refType:'vehicle', refId:'veh2', docType:'FC', docNumber:'FC-2024-77102', issueDate:'2024-06-01', expiryDate:dOff(-5), notes:'Expired — renewal needed urgently.'},
-    {id:'doc3', refType:'vehicle', refId:'veh3', docType:'Permit', docNumber:'PMT-2025-65310', issueDate:'2025-01-15', expiryDate:dOff(180), notes:''},
-    {id:'doc4', refType:'driver', refId:'drv2', docType:'Driving Licence', docNumber:'TN51 20190098765', issueDate:'2019-08-15', expiryDate:dOff(15), notes:'Renewal due soon.'},
-    {id:'doc5', refType:'driver', refId:'drv4', docType:'Driving Licence', docNumber:'TN51 20230011122', issueDate:'2023-06-01', expiryDate:dOff(-10), notes:'Expired.'},
-    {id:'doc6', refType:'vehicle', refId:'veh5', docType:'RC', docNumber:'RC-TN51AF7890', issueDate:'2018-08-05', expiryDate:dOff(500), notes:''},
-  ];
-  docs.forEach(d=>{ d.createdAt=nowStamp(); d.updatedAt=nowStamp(); DB.documents.push(d); });
-
-  // ---------- Driver Advances ----------
-  const advances = [
-    {id:'adv1', driverId:'drv1', date:dOff(-20), amount:5000, reason:'Family medical need', paymentMethod:'Cash', reference:''},
-    {id:'adv2', driverId:'drv2', date:dOff(-10), amount:3000, reason:'Personal', paymentMethod:'UPI', reference:'UPI-88213'},
-    {id:'adv3', driverId:'drv3', date:dOff(-5), amount:2000, reason:'Advance against salary', paymentMethod:'Cash', reference:''},
-  ];
-  advances.forEach(a=>{ a.createdAt=nowStamp(); a.updatedAt=nowStamp(); DB.advances.push(a); });
-
-  // ---------- Salaries ----------
-  const salaries = [
-    {id:'sal1', driverId:'drv1', period:'Last Month', salaryType:'Monthly', baseSalary:22000, overtime:1500, bonus:0, deductions:0, advanceDeducted:5000, paidAmount:18500, paymentDate:dOff(-15), notes:''},
-    {id:'sal2', driverId:'drv3', period:'Last Month', salaryType:'Monthly', baseSalary:18000, overtime:0, bonus:1000, deductions:0, advanceDeducted:2000, paidAmount:17000, paymentDate:dOff(-15), notes:''},
-    {id:'sal3', driverId:'drv2', period:'Last Month', salaryType:'Daily Wage', dailyRate:750, daysWorked:26, overtime:0, bonus:0, deductions:500, advanceDeducted:3000, paidAmount:15000, paymentDate:dOff(-15), notes:'Balance to be settled next cycle.'},
-  ];
-  salaries.forEach(s=>{ s.createdAt=nowStamp(); s.updatedAt=nowStamp(); DB.salaries.push(s); });
-
-  // ---------- Driver Activities ----------
-  const acts = [
-    {id:'act1', driverId:'drv1', type:'positive', date:dOff(-18), activity:'Safe driving', points:5, description:'No incidents in 6 months, excellent record.', recordedBy:'Owner'},
-    {id:'act2', driverId:'drv1', type:'positive', date:dOff(-40), activity:'Customer appreciation', points:8, description:'Customer specifically praised his work at Mayiladuthurai site.', recordedBy:'Owner'},
-    {id:'act3', driverId:'drv3', type:'positive', date:dOff(-25), activity:'Completed work efficiently', points:5, description:'Finished layout leveling 2 days ahead of schedule.', recordedBy:'Owner'},
-    {id:'act4', driverId:'drv2', type:'negative', date:dOff(-9), activity:'Late attendance', points:3, severity:'Low', description:'Reported 2 hours late without prior notice.', recordedBy:'Owner'},
-    {id:'act5', driverId:'drv2', type:'negative', date:dOff(-30), activity:'Careless operation', points:6, severity:'Medium', description:'Minor scrape on tipper body while reversing.', recordedBy:'Owner'},
-  ];
-  acts.forEach(a=>{ a.createdAt=nowStamp(); a.updatedAt=nowStamp(); DB.driverActivities.push(a); });
-
-  // ---------- Invoices ----------
-  const invoices = [
-    {id:'inv1', invoiceNumber:'INV-0001', invoiceDate:dOff(-70), customerId:'cus3', siteId:'site3', vehicleId:'veh3', driverId:'drv2', rateType:'Daily', rate:4500, quantity:18, additionalCharges:0, discount:0, taxPercent:0, paid:81000, status:'Paid', notes:'Pond excavation — fully settled.'},
-    {id:'inv2', invoiceNumber:'INV-0002', invoiceDate:dOff(-46), customerId:'cus1', siteId:'site1', vehicleId:'veh5', driverId:'drv4', rateType:'Daily', rate:5000, quantity:14, additionalCharges:0, discount:0, taxPercent:0, paid:40000, status:'Partial', notes:'Balance pending.'},
-    {id:'inv3', invoiceNumber:'INV-0003', invoiceDate:dOff(-3), customerId:'cus2', siteId:'site2', vehicleId:'veh1', driverId:'drv1', rateType:'Daily', rate:6000, quantity:7, additionalCharges:1500, discount:0, taxPercent:0, paid:42000, status:'Partial', notes:'Additional charge for site mobilization.'},
-  ];
-  invoices.forEach(i=>{ i.createdAt=nowStamp(); i.updatedAt=nowStamp(); DB.invoices.push(i); });
-  DB.settings.nextInvoiceSeq = 4;
-
-  // ---------- Receipts ----------
-  DB.receipts.push({id:'rct1', receiptNumber:'RCT-0001', customerId:'cus3', invoiceId:'inv1', amount:81000, date:dOff(-70), paymentMethod:'Bank Transfer', notes:'', createdAt:nowStamp(), updatedAt:nowStamp()});
-  DB.settings.nextReceiptSeq = 2;
-
-  // ---------- Tasks ----------
-  const tasks = [
-    {id:'tsk1', title:'Renew FC for Tata Hitachi Excavator (veh2)', description:'FC expired — visit RTO with documents.', dueDate:dOff(2), priority:'Urgent', status:'Pending', assignedTo:'drv3', notes:''},
-    {id:'tsk2', title:'Collect balance payment from MK Constructions', description:'₹6,000 balance pending on job at Mayiladuthurai site.', dueDate:dOff(3), priority:'High', status:'Pending', notes:''},
-    {id:'tsk3', title:'Follow up on gearbox spare parts for Bharat Benz tipper', description:'Call vendor in Chennai for delivery update.', dueDate:dOff(-1), priority:'High', status:'In Progress', notes:''},
-    {id:'tsk4', title:'Renew driving licence — Raja Mohan', description:'Licence expiring soon, schedule RTO visit.', dueDate:dOff(10), priority:'Medium', status:'Pending', assignedTo:'drv2', notes:''},
-    {id:'tsk5', title:'Quarterly vehicle inspection — all fleet', description:'General condition check for all 5 vehicles.', dueDate:dOff(-20), priority:'Medium', status:'Completed', notes:'Completed last month.'},
-  ];
-  tasks.forEach(t=>{ t.createdAt=nowStamp(); t.updatedAt=nowStamp(); DB.tasks.push(t); });
-
-  // ---------- Audit log seed entries ----------
-  audit('create','vehicles','veh1','Demo data loaded');
-  audit('create','drivers','drv1','Demo data loaded');
-  audit('create','jobs','job1','Demo data loaded');
-
-  saveDB();
-}
-
-</script>
-<script>
 
 function init(){
   loadDB();
-  seedDemoData();
   if(!DB.session){ showLogin(); }
   else { bootApp(); }
 }
@@ -2743,7 +2581,6 @@ document.addEventListener("DOMContentLoaded", init);
 
   const STEPS = [
     ['Sign in','உள்நுழைவு','Open the software and sign in with the default login admin / admin123. Then change the password: Settings → Users & Access → ✏️.','மென்பொருளைத் திறந்து admin / admin123 மூலம் உள்நுழையவும். பிறகு Settings → Users & Access → ✏️ மூலம் கடவுச்சொல்லை மாற்றவும்.'],
-    ['Practice with sample data','மாதிரி தரவுடன் பழகுங்கள்','The software starts with demo (sample) vehicles, drivers and jobs so you can see every screen working. Delete the sample records before you enter your real data.','மென்பொருளில் மாதிரி வாகனங்கள், ஓட்டுநர்கள், வேலைகள் இருக்கும்; அனைத்து திரைகளையும் பார்த்துப் பழகலாம். உண்மையான தரவை உள்ளிடும் முன் மாதிரி பதிவுகளை நீக்கவும்.'],
     ['Set up your company','நிறுவன அமைப்பு','Settings → Company Branding and Preferences: company name, tagline, invoice / receipt prefix and reminder days. Click Save.','Settings → Company Branding மற்றும் Preferences: நிறுவனப் பெயர், டேக்லைன், இன்வாய்ஸ் / ரசீது முன்னொட்டு, நினைவூட்டல் நாட்கள். பின்னர் Save அழுத்தவும்.'],
     ['Add vehicles','வாகனங்களைச் சேர்க்கவும்','Vehicles → + Add Vehicle. Enter registration number, name, type, status and other details, then save.','Vehicles → + Add Vehicle. பதிவு எண், பெயர், வகை, நிலை போன்ற விவரங்களை உள்ளிட்டு சேமிக்கவும்.'],
     ['Add drivers, customers and sites','ஓட்டுநர், வாடிக்கையாளர், தளங்களைச் சேர்க்கவும்','Use Drivers / Employees, Customers and Sites / Projects in the same way (+ Add button at the top right of each list). Click any row to open or edit it.','Drivers / Employees, Customers, Sites / Projects பகுதிகளிலும் இதே முறை (ஒவ்வொரு பட்டியலின் மேலே + Add பட்டன்). எந்த வரிசையையும் கிளிக் செய்து திறக்க / திருத்த முடியும்.'],
