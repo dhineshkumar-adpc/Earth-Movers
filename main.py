@@ -3,6 +3,7 @@ import os
 import json
 import sqlite3
 import sys
+import shutil
 
 # Get the folder where the .exe is located
 if getattr(sys, 'frozen', False):
@@ -10,20 +11,39 @@ if getattr(sys, 'frozen', False):
 else:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-def _writable_dir(preferred):
-    """Use the app folder if writable, otherwise fall back to %LOCALAPPDATA%."""
+def get_documents_dir():
+    """Real 'Documents' folder (follows OneDrive redirection). Works Windows 7 -> 11."""
     try:
-        test = os.path.join(preferred, '.write_test')
-        with open(test, 'w') as f:
-            f.write('x')
-        os.remove(test)
-        return preferred
+        import ctypes
+        from ctypes import wintypes
+        buf = ctypes.create_unicode_buffer(wintypes.MAX_PATH)
+        ctypes.windll.shell32.SHGetFolderPathW(None, 5, None, 0, buf)  # 5 = CSIDL_PERSONAL
+        if buf.value:
+            return buf.value
     except Exception:
-        fallback = os.path.join(os.environ.get('LOCALAPPDATA', os.path.expanduser('~')), 'FleetManagement')
-        os.makedirs(fallback, exist_ok=True)
-        return fallback
+        pass
+    return os.path.join(os.path.expanduser('~'), 'Documents')
 
-DB_PATH = os.path.join(_writable_dir(BASE_DIR), 'app_data.db')
+def get_data_dir():
+    """Database lives in Documents\\FleetManagement (safe from uninstall/updates)."""
+    try:
+        path = os.path.join(get_documents_dir(), 'FleetManagement')
+        os.makedirs(path, exist_ok=True)
+        return path
+    except Exception:
+        path = os.path.join(os.environ.get('LOCALAPPDATA', os.path.expanduser('~')), 'FleetManagement')
+        os.makedirs(path, exist_ok=True)
+        return path
+
+DB_PATH = os.path.join(get_data_dir(), 'app_data.db')
+
+# One-time migration: copy old database from the app folder if it exists
+_OLD_DB = os.path.join(BASE_DIR, 'app_data.db')
+if os.path.exists(_OLD_DB) and not os.path.exists(DB_PATH):
+    try:
+        shutil.copy2(_OLD_DB, DB_PATH)
+    except Exception:
+        pass
 # index.html is packed inside the .exe (PyInstaller --onefile), so users cannot edit it
 RES_DIR = getattr(sys, '_MEIPASS', BASE_DIR)
 HTML_FILE = os.path.join(RES_DIR, 'index.html')
