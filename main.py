@@ -10,7 +10,20 @@ if getattr(sys, 'frozen', False):
 else:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DB_PATH = os.path.join(BASE_DIR, 'app_data.db')
+def _writable_dir(preferred):
+    """Use the app folder if writable, otherwise fall back to %LOCALAPPDATA%."""
+    try:
+        test = os.path.join(preferred, '.write_test')
+        with open(test, 'w') as f:
+            f.write('x')
+        os.remove(test)
+        return preferred
+    except Exception:
+        fallback = os.path.join(os.environ.get('LOCALAPPDATA', os.path.expanduser('~')), 'FleetManagement')
+        os.makedirs(fallback, exist_ok=True)
+        return fallback
+
+DB_PATH = os.path.join(_writable_dir(BASE_DIR), 'app_data.db')
 # index.html is packed inside the .exe (PyInstaller --onefile), so users cannot edit it
 RES_DIR = getattr(sys, '_MEIPASS', BASE_DIR)
 HTML_FILE = os.path.join(RES_DIR, 'index.html')
