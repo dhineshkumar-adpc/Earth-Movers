@@ -1,0 +1,28 @@
+# UTF-8
+VSVersionInfo(
+  ffi=FixedFileInfo(
+    filevers=(1, 0, 0, 0),
+    prodvers=(1, 0, 0, 0),
+    mask=0x3f,
+    flags=0x0,
+    OS=0x40004,
+    fileType=0x1,
+    subtype=0x0,
+    date=(0, 0)
+  ),
+  kids=[
+    StringFileInfo([
+      StringTable(
+        '040904B0',
+        [StringStruct('CompanyName', 'Dhineshkumar Adpc Murugan Trader'),
+         StringStruct('FileDescription', 'Fleet Management Software'),
+         StringStruct('FileVersion', '1.0.0.0'),
+         StringStruct('InternalName', 'FleetManagement'),
+         StringStruct('LegalCopyright', 'Copyright (c) Dhineshkumar Adpc Murugan Trader'),
+         StringStruct('OriginalFilename', 'FleetManagement.exe'),
+         StringStruct('ProductName', 'Fleet Management Software'),
+         StringStruct('ProductVersion', '1.0.0.0')])
+    ]),
+    VarFileInfo([VarStruct('Translation', [1033, 1200])])
+  ]
+)
