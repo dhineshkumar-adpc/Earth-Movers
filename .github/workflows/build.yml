@@ -1,13 +1,21 @@
-name: Build Windows EXE
+name: Build Windows Installer
 
 on:
   push:
     branches: [ main ]
+    tags: [ 'v*' ]
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      # Optional: add these in GitHub -> Settings -> Secrets -> Actions to enable code signing
+      CERT_BASE64: ${{ secrets.CODESIGN_PFX_BASE64 }}
+      CERT_PASSWORD: ${{ secrets.CODESIGN_PFX_PASSWORD }}
 
     steps:
       - name: Checkout code
@@ -16,9 +24,8 @@ jobs:
       - name: Check required files are in the repo
         shell: pwsh
         run: |
-          Get-ChildItem
           $missing = @()
-          foreach ($f in "main.py","index.html","logo.png","requirements.txt") {
+          foreach ($f in "main.py","index.html","logo.png","requirements.txt","installer.iss") {
             if (-not (Test-Path $f)) { $missing += $f }
           }
           if ($missing.Count -gt 0) {
@@ -36,12 +43,58 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Build EXE with PyInstaller
+      # onedir + no UPX = far fewer antivirus false positives than --onefile
+      - name: Build app folder with PyInstaller
         run: |
-          python -m PyInstaller --noconsole --onefile --name main --add-data "index.html;." --add-data "logo.png;." main.py
+          python -m PyInstaller --noconsole --noupx --onedir --name FleetManagement --add-data "index.html;." --add-data "logo.png;." main.py
 
-      - name: Upload EXE Artifact
+      - name: Find signtool
+        if: env.CERT_BASE64 != ''
+        shell: pwsh
+        run: |
+          $st = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" | Sort-Object FullName | Select-Object -Last 1
+          "SIGNTOOL=$($st.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+          [IO.File]::WriteAllBytes("$PWD\codesign.pfx", [Convert]::FromBase64String($env:CERT_BASE64))
+
+      - name: Sign app exe
+        if: env.CERT_BASE64 != ''
+        shell: pwsh
+        run: |
+          & $env:SIGNTOOL sign /f codesign.pfx /p $env:CERT_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 dist\FleetManagement\FleetManagement.exe
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup -y --no-progress
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $ver = if ("${{ github.ref_type }}" -eq "tag") { "${{ github.ref_name }}".TrimStart("v") } else { "1.0.${{ github.run_number }}" }
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DAppVersion=$ver installer.iss
+
+      - name: Sign installer
+        if: env.CERT_BASE64 != ''
+        shell: pwsh
+        run: |
+          & $env:SIGNTOOL sign /f codesign.pfx /p $env:CERT_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 installer_out\FleetManagement-Setup.exe
+          Remove-Item codesign.pfx
+
+      - name: Create SHA256 hash
+        shell: pwsh
+        run: |
+          $h = (Get-FileHash installer_out\FleetManagement-Setup.exe -Algorithm SHA256).Hash
+          "$h  FleetManagement-Setup.exe" | Out-File installer_out\SHA256.txt -Encoding ascii
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: FleetManagementSoftware
-          path: dist/main.exe
+          path: installer_out/*
+
+      - name: Publish GitHub Release (on tag)
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            installer_out/FleetManagement-Setup.exe
+            installer_out/SHA256.txt
