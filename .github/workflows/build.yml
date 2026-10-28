@@ -25,7 +25,7 @@ jobs:
         shell: pwsh
         run: |
           $missing = @()
-          foreach ($f in "main.py","index.html","logo.png","requirements.txt","installer.iss") {
+          foreach ($f in "main.py","index.html","logo.png","requirements.txt","installer.iss","version_info.txt") {
             if (-not (Test-Path $f)) { $missing += $f }
           }
           if ($missing.Count -gt 0) {
@@ -40,13 +40,20 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
+
+      # Compile PyInstaller's bootloader on this runner instead of using the
+      # prebuilt one that antivirus ML models already associate with many malware samples.
+      - name: Rebuild PyInstaller bootloader from source
+        run: |
+          pip uninstall -y pyinstaller
+          pip install --no-binary pyinstaller --no-cache-dir pyinstaller==6.3.0
 
       # onedir + no UPX = far fewer antivirus false positives than --onefile
       - name: Build app folder with PyInstaller
         run: |
-          python -m PyInstaller --noconsole --noupx --onedir --name FleetManagement --add-data "index.html;." --add-data "logo.png;." main.py
+          python -m PyInstaller --noconsole --noupx --onedir --name FleetManagement --version-file version_info.txt --add-data "index.html;." --add-data "logo.png;." main.py
 
       - name: Find signtool
         if: env.CERT_BASE64 != ''
